@@ -265,14 +265,6 @@ python get_installation_id.py
 
 Should show your installation ID and account.
 
-### Test JWT generation
-
-```bash
-python debug_jwt.py
-```
-
-Should successfully generate and decode a JWT.
-
 ### Check scanner output
 
 ```bash
