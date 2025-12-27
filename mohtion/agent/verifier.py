@@ -25,8 +25,8 @@ class Verifier:
 
     # Common test commands to try (in order)
     DEFAULT_TEST_COMMANDS = [
+        "python -m pytest",  # Prefer this - uses pytest from current Python env
         "pytest",
-        "python -m pytest",
         "python -m unittest discover",
         "npm test",
         "yarn test",
@@ -46,7 +46,7 @@ class Verifier:
 
         # Check for common test configurations
         if (self.repo_path / "pyproject.toml").exists():
-            self._test_command = "pytest"
+            self._test_command = "python -m pytest"
             return self._test_command
 
         if (self.repo_path / "setup.py").exists():
@@ -78,6 +78,27 @@ class Verifier:
         logger.warning("Could not detect test command")
         return None
 
+    async def install_dependencies(self) -> bool:
+        """Install dependencies from requirements.txt if it exists."""
+        requirements_file = self.repo_path / "requirements.txt"
+
+        if not requirements_file.exists():
+            logger.info("No requirements.txt found, skipping dependency installation")
+            return True
+
+        logger.info("Installing dependencies from requirements.txt")
+        result = await self._run_command(
+            f"pip install -q -r {requirements_file}",
+            timeout=180
+        )
+
+        if result.passed:
+            logger.info("Dependencies installed successfully")
+            return True
+        else:
+            logger.warning(f"Failed to install dependencies: {result.output}")
+            return False
+
     async def run_tests(self, timeout: int = 300) -> TestResult:
         """
         Run the test suite.
@@ -88,6 +109,9 @@ class Verifier:
         Returns:
             TestResult with pass/fail status and output
         """
+        # Install dependencies first
+        await self.install_dependencies()
+
         test_command = await self.detect_test_command()
 
         if not test_command:

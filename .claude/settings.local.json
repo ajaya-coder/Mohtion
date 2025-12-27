@@ -10,7 +10,11 @@
       "Bash(python:*)",
       "Bash(findstr:*)",
       "Bash(pytest:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(dir:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ]
   }
 }

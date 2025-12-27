@@ -4,16 +4,20 @@
 
 Mohtion is a cloud-based AI agent that continuously monitors your GitHub repositories, identifies technical debt, and opens Pull Requests with verified fixes.
 
-## 🎉 MVP Status: VALIDATED & FUNCTIONAL
+## 🎉 MVP Status: PRODUCTION VALIDATED
 
-The Mohtion MVP has been successfully tested end-to-end! All core components are working:
+The Mohtion MVP has successfully created its first PR in production! All core components are working:
 
 ✅ GitHub App integration
 ✅ Code scanning & analysis
 ✅ LLM-powered refactoring
+✅ Automatic dependency installation
 ✅ Test verification
 ✅ Self-healing on failures
 ✅ Safety mechanisms (no PR if tests fail)
+✅ **PR creation via GitHub API**
+
+**First production PR:** https://github.com/JulianCruzet/test-for-mohtion/pull/1
 
 **Ready to test?** See [MVP_QUICKSTART.md](./MVP_QUICKSTART.md) for a step-by-step guide!
 

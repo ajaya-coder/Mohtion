@@ -100,6 +100,9 @@ class CustomOrchestrator(Orchestrator):
                     bounty.test_passed = True
                     break
 
+                # Log test output for debugging
+                logger.error(f"Test output (attempt {attempt + 1}):\n{test_result.output}")
+
                 # Self-healing attempt
                 if attempt < self.settings.max_retries:
                     logger.info(f"Tests failed, attempting self-heal (attempt {attempt + 1})")
@@ -172,7 +175,7 @@ class CustomOrchestrator(Orchestrator):
 async def main():
     """Run the full test."""
     OWNER = "JulianCruzet"
-    REPO = "Newtons-Cradle"
+    REPO = "test-for-mohtion"
     INSTALLATION_ID = 101273572
 
     logger.info("=" * 60)
