@@ -8,7 +8,7 @@ export function Navbar() {
     <motion.header 
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="fixed top-0 left-0 right-0 z-50 flex justify-center p-6"
+      className="fixed top-0 left-0 right-0 z-50 flex justify-center p-4"
     >
       <nav className="flex items-center justify-between w-full max-w-7xl px-6 py-3 bg-white/70 backdrop-blur-xl border border-zinc-200 rounded-2xl shadow-sm">
         {/* Brand */}

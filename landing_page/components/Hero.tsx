@@ -6,7 +6,7 @@ import { ArrowRight, Terminal } from "lucide-react";
 
 export function Hero() {
   return (
-    <section className="relative min-h-[90vh] flex flex-col items-center justify-center bg-white overflow-hidden pt-20">
+    <section className="relative min-h-screen flex flex-col items-center justify-center bg-white overflow-hidden pt-32 pb-16">
       
       {/* 1. Base Grid Pattern (Subtle) */}
       <div className="absolute inset-0 z-0 w-full h-full bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
@@ -23,7 +23,7 @@ export function Hero() {
         <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/60 bg-white/50 backdrop-blur-sm shadow-sm mb-8 z-20"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/60 bg-white/50 backdrop-blur-sm shadow-sm mb-6 z-20"
         >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
@@ -37,10 +37,10 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-5xl md:text-7xl font-bold tracking-tighter text-zinc-900 mb-6 max-w-4xl z-20"
+            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-zinc-900 mb-4 max-w-4xl z-20"
         >
           Pay Down Tech Debt <br/>
-          <span className="text-zinc-400">While You Sleep.</span>
+          <span className="text-orange-500">While You Sleep.</span>
         </motion.h1>
 
         {/* Subhead */}
@@ -48,7 +48,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-lg md:text-xl text-zinc-500 max-w-2xl mb-10 leading-relaxed z-20"
+            className="text-base md:text-lg text-zinc-500 max-w-2xl mb-8 leading-relaxed z-20"
         >
           The autonomous agent that monitors your repositories, identifies complexity, and opens Pull Requests with verified fixes.
         </motion.p>
@@ -58,13 +58,13 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center gap-4 mb-20 z-20"
+            className="flex flex-col sm:flex-row items-center gap-4 mb-12 z-20"
         >
-            <button className="px-8 py-3 bg-zinc-900 text-white rounded-lg font-medium hover:bg-zinc-800 transition-colors shadow-lg shadow-zinc-900/20 flex items-center gap-2">
+            <button className="px-8 py-3 bg-zinc-900 text-white rounded-lg font-medium hover:bg-zinc-800 transition-colors shadow-lg shadow-zinc-900/20 flex items-center gap-2 text-sm">
                 <Terminal className="w-4 h-4" />
                 Install GitHub App
             </button>
-            <button className="px-8 py-3 bg-white/80 backdrop-blur-sm text-zinc-600 border border-zinc-200 rounded-lg font-medium hover:bg-white transition-colors flex items-center gap-2 group">
+            <button className="px-8 py-3 bg-white/80 backdrop-blur-sm text-zinc-600 border border-zinc-200 rounded-lg font-medium hover:bg-white transition-colors flex items-center gap-2 group text-sm">
                 Read Documentation
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
@@ -75,7 +75,7 @@ export function Hero() {
             initial={{ opacity: 0, scale: 0.95, y: 40 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="w-full max-w-3xl relative z-10"
+            className="w-full max-w-2xl relative z-10"
         >
             {/* Glow under terminal */}
             <div className="absolute -inset-2 bg-gradient-to-r from-orange-500/20 to-blue-500/20 rounded-3xl blur-2xl opacity-40" />
