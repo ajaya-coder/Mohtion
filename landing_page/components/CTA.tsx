@@ -1,7 +1,12 @@
 "use client";
 import { motion } from "framer-motion";
 import { ArrowRight, Github, Sparkles } from "lucide-react";
-import { BackgroundBeams } from "@/components/ui/background-beams";
+import dynamic from "next/dynamic";
+
+const BackgroundBeams = dynamic(
+  () => import("@/components/ui/background-beams").then((mod) => mod.BackgroundBeams),
+  { ssr: false }
+);
 
 export function CTA() {
   return (
