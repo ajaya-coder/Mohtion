@@ -1,6 +1,7 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+
+import React, { useState, useEffect, useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Search, Terminal, GitPullRequest, CheckCircle2, AlertCircle, FileDiff, Layers, Bot, Code } from "lucide-react";
 
@@ -89,13 +90,18 @@ const STEPS = [
 
 export function CommandCenter() {
   const [activeStep, setActiveStep] = useState(1);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
   useEffect(() => {
+    if (!isInView) return;
+    
     const timer = setInterval(() => { setActiveStep((s) => (s % 4) + 1); }, 2500);
     return () => clearInterval(timer);
-  }, []);
+  }, [isInView]);
 
   return (
-    <section className="py-20 bg-zinc-100 border-y border-zinc-200 relative overflow-hidden" id="how-it-works">
+    <section ref={ref} className="py-20 bg-zinc-100 border-y border-zinc-200 relative overflow-hidden" id="how-it-works">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:20px_20px] opacity-50" />
       

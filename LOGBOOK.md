@@ -33,3 +33,18 @@
   - **File Corruption:** Addressed ambiguous module definition errors by overwriting corrupted component files with clean, correct versions.
 
 The final result is a professional, animated, and highly informative landing page that clearly communicates the value and sophistication of the Mohtion agent.
+
+---
+
+## 2025-12-29 - Session 5: Landing Page Refinements & User Interaction
+
+### Accomplished
+- **Goal:** Refine the landing page UX, specifically focusing on the interactions and animations of the "Agent Workflow" and "Command Center" sections.
+- **Refined Animation Logic:** Implemented `useInView` hooks for the **Command Center** and **Agent Workflow** terminal log. This ensures animations (like the terminal text typing out) only trigger when the user actually scrolls to that section, creating a more narrative experience.
+- **Visual Balance:** Adjusted the `ContainerScroll` component to take up the full viewport height (`h-screen`) while restoring the large, impactful terminal card size. This strikes a balance between immersion and readability.
+- **Brand Consistency:** Updated the footer logo to match the official "rotated orange square" brand mark found in the navbar.
+- **Fixed React Hooks:** Resolved a `useEffect` error by ensuring the `"use client";` directive was correctly placed in client-side components.
+
+### Next Steps
+- **Production Deployment:** The landing page is now polished enough for a public reveal.
+- **Backend Persistence:** Return to the core backend tasks: setting up PostgreSQL and Alembic migrations.
