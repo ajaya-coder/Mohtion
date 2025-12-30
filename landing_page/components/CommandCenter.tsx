@@ -128,8 +128,11 @@ export function CommandCenter() {
   }, []);
 
   return (
-    <section className="py-32 bg-zinc-50" id="how-it-works">
-      <div className="container mx-auto px-6">
+    <section className="py-32 bg-zinc-100/50 border-y border-zinc-200 relative overflow-hidden" id="how-it-works">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:20px_20px] opacity-50" />
+      
+      <div className="container mx-auto px-6 relative z-10">
         
         <div className="text-center max-w-2xl mx-auto mb-20">
             <h2 className="text-4xl font-bold tracking-tight text-zinc-900">
