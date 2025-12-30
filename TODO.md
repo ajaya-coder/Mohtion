@@ -86,6 +86,7 @@
 
 ## Phase 13: Polish & Documentation
 
+- [x] Implement high-fidelity marketing landing page (`/landing_page`)
 - [ ] Finalize README with real usage
 - [ ] GitHub App installation instructions
 - [ ] Self-hosting guide

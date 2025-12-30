@@ -128,6 +128,17 @@ export ANTHROPIC_API_KEY=...
 docker-compose up -d
 ```
 
+## Landing Page
+
+This repository now includes a high-fidelity marketing landing page built with Next.js, Tailwind CSS, and Framer Motion. The source code is located in the `/landing_page` directory.
+
+To run it locally:
+```bash
+cd landing_page
+npm install
+npm run dev
+```
+
 ## Project Documentation
 
 - **[TODO.md](TODO.md)** - Development roadmap and task tracking
