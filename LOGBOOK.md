@@ -221,7 +221,7 @@ Railway Project
 - ✅ Environment variables documented
 - ✅ GitHub webhook integration planned
 
-**Next deployment steps** (your action required):
+**Next deployment steps** (Currently working on this):
 1. Install Railway CLI: `npm install -g @railway/cli` or `brew install railway`
 2. Login and create project: `railway login` → `railway init`
 3. Add Redis plugin via Railway Dashboard
