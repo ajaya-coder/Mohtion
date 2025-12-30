@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 export function TechStack() {
   const techs = [
     { name: "Python", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" },
-    { name: "Claude AI", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Anthropic_logo.svg/512px-Anthropic_logo.svg.png" },
+    { name: "Claude AI", logo: "https://avatars.githubusercontent.com/u/76263028?s=200&v=4" },
     { name: "GitHub", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" },
     { name: "FastAPI", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg" },
     { name: "Docker", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" },
