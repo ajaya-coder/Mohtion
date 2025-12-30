@@ -11,8 +11,11 @@ export function TechStack() {
   ];
 
   return (
-    <section className="py-12 bg-zinc-50 border-y border-zinc-100">
-      <div className="container mx-auto px-6">
+    <section className="py-12 bg-zinc-50 border-y border-zinc-100 relative overflow-hidden">
+      {/* Background Grid */}
+      <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] opacity-50" />
+      
+      <div className="container mx-auto px-6 relative z-10">
         <p className="text-center text-[10px] font-bold text-zinc-800 tracking-[0.2em] uppercase mb-8">
           Built with Industry Leading Tech
         </p>

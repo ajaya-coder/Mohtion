@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { ArrowRight, Github, Sparkles } from "lucide-react";
+import { BackgroundBeams } from "@/components/ui/background-beams";
 
 export function CTA() {
   return (
@@ -12,8 +13,8 @@ export function CTA() {
           viewport={{ once: true }}
           className="relative rounded-3xl overflow-hidden bg-zinc-900 px-8 py-20 text-center shadow-2xl"
         >
-          {/* Decorative background glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.15),transparent_70%)]" />
+          {/* Animated Background */}
+          <BackgroundBeams className="absolute inset-0" />
           
           <div className="relative z-10 max-w-2xl mx-auto">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold mb-6">
