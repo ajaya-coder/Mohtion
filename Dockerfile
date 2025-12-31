@@ -5,15 +5,15 @@ WORKDIR /app
 # Install git (needed for GitPython)
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-# Copy dependency files
+# Copy dependency files first
 COPY pyproject.toml .
 COPY README.md .
 
-# Install dependencies
-RUN pip install --no-cache-dir -e .
-
-# Copy application code
+# Copy application code BEFORE installing
 COPY mohtion/ mohtion/
+
+# Install dependencies (package source now available)
+RUN pip install --no-cache-dir -e .
 
 # Expose port for documentation
 EXPOSE 8000
