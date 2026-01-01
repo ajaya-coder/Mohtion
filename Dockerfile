@@ -17,6 +17,12 @@ COPY landing_page/ ./
 # Build static export
 RUN npm run build
 
+# Debug: Verify Next.js created the out directory
+RUN echo "=== Checking Next.js build output ===" && \
+    ls -la /frontend/ && \
+    echo "=== Contents of out directory ===" && \
+    ls -la /frontend/out/ || echo "ERROR: out directory not found"
+
 # ============================================
 # Stage 2: Python Backend + Static Files
 # ============================================
@@ -39,6 +45,12 @@ RUN pip install --no-cache-dir -e .
 
 # Copy static files from frontend build
 COPY --from=frontend-builder /frontend/out /app/static
+
+# Debug: Verify static files were copied
+RUN echo "=== Verifying static files copied ===" && \
+    ls -la /app/ && \
+    echo "=== Contents of static directory ===" && \
+    ls -la /app/static/ || echo "ERROR: static directory not found"
 
 # Expose port for documentation
 EXPOSE 8000
