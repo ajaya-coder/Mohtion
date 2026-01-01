@@ -359,3 +359,110 @@ INFO:     100.64.0.2:56761 - "GET /health HTTP/1.1" 200 OK
 - Test webhook reception and job queue processing
 - Monitor first production agent execution via webhooks
 - Consider adding database persistence for bounty tracking
+
+---
+
+## 2026-01-01 - Session 9: Landing Page Deployment & Route Conflict Resolution
+
+### Accomplished
+- **Successfully integrated Next.js landing page with Railway deployment**
+- Merged `deploy/railway-setup` branch with `main` while preserving chronological LOGBOOK history
+- Fixed critical deployment issues preventing landing page from displaying:
+  - Configured Next.js for static export (`output: 'export'`)
+  - Created multi-stage Dockerfile (Node.js + Python)
+  - Added StaticFiles mounting in FastAPI application
+  - Resolved TypeScript build error in Railway
+  - Fixed route priority conflict
+
+### Technical Challenges & Fixes
+
+#### Challenge 1: Landing Page Not Included in Deployment
+**Issue:** Railway deployment only built Python backend, Next.js landing page was missing
+**Solution:**
+- Modified `landing_page/next.config.ts` to add `output: 'export'` for static site generation
+- Created multi-stage Dockerfile:
+  - Stage 1: Build Next.js app with Node.js 20
+  - Stage 2: Copy static files to Python backend
+- Updated `.dockerignore` to include landing page source files
+
+#### Challenge 2: TypeScript Build Error
+**Issue:** Railway build failed with `Cannot find module 'typescript'`
+**Root Cause:** `npm ci --only=production` excluded devDependencies, but TypeScript is required to transpile `next.config.ts`
+**Solution:** Changed `Dockerfile:12` from `npm ci --only=production` to `npm ci`
+
+#### Challenge 3: Landing Page Returns JSON Instead of HTML
+**Issue:** Root URL returned `{"message": "Mohtion - ...", "version": "0.1.0"}` instead of landing page
+**Root Cause:** Conflicting route in `health.py:14-17` with `@router.get("/")` registered before StaticFiles mount
+**Solution:** Removed the conflicting root route from `health.py`, allowing StaticFiles to serve `index.html`
+
+### Key Technical Changes
+
+1. **`landing_page/next.config.ts`** - Added static export configuration:
+   ```typescript
+   const nextConfig: NextConfig = {
+     output: 'export',
+   };
+   ```
+
+2. **`Dockerfile`** - Multi-stage build for frontend + backend:
+   ```dockerfile
+   # Stage 1: Build Next.js Landing Page
+   FROM node:20-slim AS frontend-builder
+   WORKDIR /frontend
+   COPY landing_page/package*.json ./
+   RUN npm ci
+   COPY landing_page/ ./
+   RUN npm run build
+
+   # Stage 2: Python Backend + Static Files
+   FROM python:3.12-slim
+   WORKDIR /app
+   # ... (install dependencies)
+   COPY --from=frontend-builder /frontend/out /app/static
+   ```
+
+3. **`mohtion/web/app.py`** - Added StaticFiles mounting:
+   ```python
+   from fastapi.staticfiles import StaticFiles
+
+   # Mount static files (must be LAST, acts as catch-all)
+   static_dir = Path(__file__).parent.parent.parent / "static"
+   if static_dir.exists():
+       app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
+   ```
+
+4. **`mohtion/web/routes/health.py`** - Removed conflicting route:
+   - Deleted `@router.get("/")` endpoint that was returning JSON
+   - Kept `/health` endpoint for monitoring
+
+### Production Status: ✅ **LANDING PAGE LIVE**
+
+**Deployment verified**:
+- ✅ Root URL (`/`) now serves Next.js landing page with animations
+- ✅ Hero section with "Public Beta" badge displaying correctly
+- ✅ Live Agent Terminal animation working
+- ✅ Autonomous Pipeline Dashboard interactive
+- ✅ All API endpoints still functional (`/health`, `/docs`, `/webhooks/github`)
+- ✅ Static assets (images, fonts, scripts) loading correctly
+
+### Architecture
+```
+Railway Deployment
+├── Multi-stage Docker Build
+│   ├── Node.js 20 → Build Next.js static export
+│   └── Python 3.12 → FastAPI + Static Files
+├── FastAPI Routes
+│   ├── /health → Health check endpoint
+│   ├── /webhooks/github → Webhook receiver
+│   ├── /docs → Swagger UI
+│   └── / → StaticFiles (landing page)
+└── Next.js Static Export
+    └── /app/static/ → Pre-rendered HTML/CSS/JS
+```
+
+### Next Steps
+- Configure GitHub App webhook URL to point to Railway
+- Test full webhook flow with actual GitHub events
+- Monitor production agent execution logs
+- Add database persistence for bounty tracking
+- Implement webhook automation for continuous repository monitoring
