@@ -4,6 +4,8 @@ import logging
 from pathlib import Path
 
 from mohtion.analyzers.complexity import ComplexityAnalyzer
+from mohtion.analyzers.duplicate import DuplicateAnalyzer
+from mohtion.analyzers.type_checker import TypeHintAnalyzer
 from mohtion.models.repo_config import RepoConfig
 from mohtion.models.target import TechDebtTarget
 
@@ -25,9 +27,11 @@ class Scanner:
         if "complexity" in self.config.analyzers:
             analyzers.append(ComplexityAnalyzer(self.config))
 
-        # Add more analyzers here as they're implemented:
-        # if "type_hints" in self.config.analyzers:
-        #     analyzers.append(TypeHintAnalyzer(self.config))
+        if "type_hints" in self.config.analyzers:
+            analyzers.append(TypeHintAnalyzer(self.config))
+
+        if "duplicates" in self.config.analyzers:
+            analyzers.append(DuplicateAnalyzer(self.config))
 
         return analyzers
 
