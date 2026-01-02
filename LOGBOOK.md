@@ -279,7 +279,7 @@ Railway Project
 ### Next Steps
 - **Deploy to Railway** following the steps above
 - Configure GitHub webhook to point to Railway URL
-- Test end-to-end webhook reception and job processing
+- Test end-to-end webhook reception and job queue processing
 - Monitor production usage and costs
 - Implement database persistence (TODO Phase 10)
 
@@ -466,3 +466,44 @@ Railway Deployment
 - Monitor production agent execution logs
 - Add database persistence for bounty tracking
 - Implement webhook automation for continuous repository monitoring
+
+---
+
+## 2026-01-01 - Session 10: Expanded Analyzers (Type Hints & Duplicates)
+
+### Accomplished
+- **Implemented Type Hint Analyzer:**
+  - Detects functions missing argument or return type annotations.
+  - Calculates severity based on missing ratio and function visibility (public vs private).
+  - Skips "self", "cls", and trivial functions.
+
+- **Implemented Duplicate Code Analyzer:**
+  - Detects identical function bodies (intra-file for now).
+  - Uses AST unparsing to normalize code (strips comments/formatting) and MD5 hashing.
+  - Flags all occurrences of the duplicate block.
+  - Skips trivial getters/setters (< 3 lines).
+
+- **Integrated into Scanner:**
+  - Updated `mohtion/agent/scanner.py` to initialize and run the new analyzers based on configuration.
+
+- **Comprehensive Testing:**
+  - Created `tests/test_analyzers_expanded.py`.
+  - Verified detection logic for both analyzers.
+  - Verified ignore logic for trivial or compliant code.
+  - Fixed initial bug in duplicate detection test case (variable name mismatch).
+
+### Key Technical Details
+- **TypeChecker:** Focuses on public API surface first (higher severity for exported functions).
+- **DuplicateDetector:** Currently strict (variable names must match). Future improvement: normalize variable names to find "structural" duplicates.
+- **Config:** Both analyzers are enabled by default in `RepoConfig`.
+
+### Status
+- ✅ **Type Hint Detection:** Working
+- ✅ **Duplicate Detection:** Working (Exact Match)
+- ✅ **Integration:** Complete
+- ✅ **Tests:** Passing
+
+### Next Steps
+- Merge to main.
+- Deploy to production to start flagging these new types of debt.
+- Move to **Issue 1: Database & Persistence** to track these findings over time.
