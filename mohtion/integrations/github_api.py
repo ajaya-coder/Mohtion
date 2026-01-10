@@ -10,6 +10,7 @@ import httpx
 from git import Repo
 
 from mohtion.integrations.github_app import GitHubApp
+from mohtion.utils import cleanup_path
 
 
 @dataclass
@@ -60,46 +61,46 @@ class GitHubAPI:
 
     def cleanup_repo(self, repo_path: Path) -> None:
         """Remove cloned repository directory."""
-        if repo_path.exists():
-            shutil.rmtree(repo_path)
+        cleanup_path(repo_path)
 
     def create_branch(self, repo_path: Path, base_branch: str = "main") -> str:
         """Create a new branch for the bounty."""
         branch_name = f"mohtion/bounty-{uuid.uuid4().hex[:8]}"
-        repo = Repo(repo_path)
-
-        # Checkout base branch and create new branch
-        repo.git.checkout(base_branch)
-        repo.git.checkout("-b", branch_name)
+        with Repo(repo_path) as repo:
+            # Checkout base branch and create new branch
+            repo.git.checkout(base_branch)
+            repo.git.checkout("-b", branch_name)
         return branch_name
 
     def commit_changes(
         self, repo_path: Path, file_path: Path, new_content: str, message: str
     ) -> None:
         """Commit changes to a file."""
-        repo = Repo(repo_path)
-
         # Write the new content
         full_path = repo_path / file_path
         full_path.write_text(new_content)
 
-        # Stage and commit
-        repo.index.add([str(file_path)])
-        repo.index.commit(message)
+        with Repo(repo_path) as repo:
+            # Stage and commit
+            repo.index.add([str(file_path)])
+            repo.index.commit(message)
 
     async def push_branch(
         self, repo_path: Path, owner: str, repo_name: str, branch_name: str
     ) -> None:
         """Push a branch to remote."""
         token = await self._get_token()
-        repo = Repo(repo_path)
+        with Repo(repo_path) as repo:
+            # Set up authenticated remote URL
+            remote_url = f"https://x-access-token:{token}@github.com/{owner}/{repo_name}.git"
+            repo.git.remote("set-url", "origin", remote_url)
 
-        # Set up authenticated remote URL
-        remote_url = f"https://x-access-token:{token}@github.com/{owner}/{repo_name}.git"
-        repo.git.remote("set-url", "origin", remote_url)
+            # Push the branch
+            repo.git.push("--set-upstream", "origin", branch_name)
 
-        # Push the branch
-        repo.git.push("--set-upstream", "origin", branch_name)
+    async def get_installation_info(self) -> dict:
+        """Get details about the current installation."""
+        return await self.github_app.get_installation(self.installation_id)
 
     async def create_pull_request(
         self,
@@ -130,6 +131,16 @@ class GitHubAPI:
             number=data["number"],
             html_url=data["html_url"],
         )
+
+    async def _get_repo_info(self, owner: str, repo: str) -> dict:
+        """Get repository metadata."""
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{self.API_BASE}/repos/{owner}/{repo}",
+                headers=await self._headers(),
+            )
+            response.raise_for_status()
+            return response.json()
 
     async def get_default_branch(self, owner: str, repo: str) -> str:
         """Get the default branch of a repository."""

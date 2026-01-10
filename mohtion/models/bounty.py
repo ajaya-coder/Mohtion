@@ -1,73 +1,82 @@
-"""Bounty result model - tracks the outcome of a refactoring attempt."""
+from __future__ import annotations
 
-from dataclasses import dataclass, field
+import uuid
 from datetime import datetime
 from enum import Enum
+from typing import TYPE_CHECKING
 
-from mohtion.models.target import TechDebtTarget
+from sqlalchemy import UUID, BigInteger, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from mohtion.db.base import Base
+
+if TYPE_CHECKING:
+    from mohtion.models.repository import Repository
 
 class BountyStatus(str, Enum):
     """Status of a bounty (refactoring attempt)."""
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    TESTING = "testing"
+    RETRYING = "retrying"
+    OPEN = "open"          # PR is open
+    SUCCESS = "success"    # PR was merged
+    MERGED = "merged"      # PR was merged
+    FAILED = "failed"      # Agent failed
+    ABANDONED = "abandoned"
+    CLOSED = "closed"      # Closed without merge
 
-    PENDING = "pending"  # Not yet started
-    IN_PROGRESS = "in_progress"  # Currently being processed
-    TESTING = "testing"  # Running tests
-    RETRYING = "retrying"  # Tests failed, attempting self-heal
-    SUCCESS = "success"  # PR opened successfully
-    FAILED = "failed"  # Failed after max retries
-    ABANDONED = "abandoned"  # Gave up (e.g., tests still fail)
+    @classmethod
+    def active_statuses(cls) -> list["BountyStatus"]:
+        """Return statuses that indicate work is ongoing or completed."""
+        return [
+            cls.OPEN,
+            cls.MERGED,
+            cls.SUCCESS,
+            cls.PENDING,
+            cls.IN_PROGRESS,
+            cls.TESTING,
+            cls.RETRYING,
+        ]
 
+class Bounty(Base):
+    __tablename__ = "bounties"
 
-@dataclass
-class BountyResult:
-    """Result of attempting to fix a tech debt target."""
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=uuid.uuid4)
+    repository_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("repositories.id"), nullable=False
+    )
 
-    target: TechDebtTarget
-    status: BountyStatus
-    branch_name: str
+    # Target details
+    target_file: Mapped[str] = mapped_column(String(512), nullable=False)
+    target_function: Mapped[str] = mapped_column(String(255), nullable=False)
+    issue_type: Mapped[str] = mapped_column(String(50), nullable=False)
+
+    status: Mapped[BountyStatus] = mapped_column(
+        SQLEnum(BountyStatus), default=BountyStatus.PENDING, nullable=False
+    )
+
+    # PR details
+    pr_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    pr_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    branch_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
+    # Refactoring content
+    original_code: Mapped[str | None] = mapped_column(Text, nullable=True)
+    refactored_code: Mapped[str | None] = mapped_column(Text, nullable=True)
+    refactoring_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Timestamps
-    started_at: datetime = field(default_factory=datetime.utcnow)
-    completed_at: datetime | None = None
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
-    # Results
-    pr_url: str | None = None
-    pr_number: int | None = None
+    # Test details
+    test_output: Mapped[str | None] = mapped_column(Text, nullable=True)
+    retry_count: Mapped[int] = mapped_column(Integer, default=0)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    # Refactoring details
-    original_code: str = ""
-    refactored_code: str = ""
-    refactoring_summary: str = ""
+    repository: Mapped[Repository] = relationship(back_populates="bounties")
 
-    # Test execution
-    test_passed: bool = False
-    test_output: str = ""
-    retry_count: int = 0
-
-    # Error tracking
-    error_message: str | None = None
-
-    def mark_success(self, pr_url: str, pr_number: int) -> None:
-        """Mark the bounty as successfully completed."""
-        self.status = BountyStatus.SUCCESS
-        self.pr_url = pr_url
-        self.pr_number = pr_number
-        self.test_passed = True
-        self.completed_at = datetime.utcnow()
-
-    def mark_failed(self, error: str) -> None:
-        """Mark the bounty as failed."""
-        self.status = BountyStatus.FAILED
-        self.error_message = error
-        self.completed_at = datetime.utcnow()
-
-    def __str__(self) -> str:
-        status_icon = {
-            BountyStatus.SUCCESS: "✓",
-            BountyStatus.FAILED: "✗",
-            BountyStatus.IN_PROGRESS: "⋯",
-            BountyStatus.TESTING: "🧪",
-            BountyStatus.RETRYING: "↻",
-        }.get(self.status, "?")
-        return f"{status_icon} {self.target.location} [{self.status.value}]"
+    def __repr__(self) -> str:
+        return f"<Bounty {self.target_file}:{self.target_function} [{self.status}]>"

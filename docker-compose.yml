@@ -6,32 +6,22 @@ services:
     volumes:
       - redis_data:/data
 
-  web:
-    build: .
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: mohtion
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mohtion
     ports:
-      - "8000:8000"
-    env_file:
-      - .env
-    environment:
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      - redis
+      - "5432:5432"
     volumes:
-      - ./mohtion:/app/mohtion  # Hot reload in dev
-    command: uvicorn mohtion.web.app:app --host 0.0.0.0 --port 8000 --reload
-
-  worker:
-    build: .
-    env_file:
-      - .env
-    environment:
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      - redis
-    volumes:
-      - ./mohtion:/app/mohtion  # Hot reload in dev
-      - /var/run/docker.sock:/var/run/docker.sock  # For running test containers
-    command: python -m mohtion.worker
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mohtion"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   redis_data:
+  postgres_data:

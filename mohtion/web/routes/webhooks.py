@@ -2,8 +2,11 @@
 
 import logging
 
-from fastapi import APIRouter, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from mohtion.db import crud
+from mohtion.db.session import get_db
 from mohtion.integrations.github_app import GitHubApp
 
 logger = logging.getLogger(__name__)
@@ -15,6 +18,7 @@ async def github_webhook(
     request: Request,
     x_github_event: str = Header(...),
     x_hub_signature_256: str = Header(...),
+    db: AsyncSession = Depends(get_db)
 ) -> dict[str, str]:
     """Handle incoming GitHub webhooks."""
     # Get raw body for signature verification
@@ -33,9 +37,9 @@ async def github_webhook(
     # Handle different event types
     match x_github_event:
         case "installation":
-            return await handle_installation(payload)
+            return await handle_installation(payload, db)
         case "push":
-            return await handle_push(payload)
+            return await handle_push(payload, db)
         case "ping":
             return {"status": "pong"}
         case _:
@@ -43,28 +47,48 @@ async def github_webhook(
             return {"status": "ignored", "event": x_github_event}
 
 
-async def handle_installation(payload: dict) -> dict[str, str]:
+async def handle_installation(payload: dict, db: AsyncSession) -> dict[str, str]:
     """Handle GitHub App installation events."""
     action = payload.get("action")
-    installation_id = payload.get("installation", {}).get("id")
-    account = payload.get("installation", {}).get("account", {}).get("login")
+    installation_data = payload.get("installation", {})
+    installation_id = installation_data.get("id")
+    account_data = installation_data.get("account", {})
+    account_login = account_data.get("login")
+    account_id = account_data.get("id")
 
-    logger.info(f"Installation {action}: {account} (ID: {installation_id})")
+    logger.info(f"Installation {action}: {account_login} (ID: {installation_id})")
 
     match action:
         case "created":
-            # New installation - could trigger initial scan
-            logger.info(f"New installation from {account}")
-            # TODO: Queue initial scan job
+            # Persist installation
+            await crud.get_or_create_installation(
+                db,
+                installation_id=installation_id,
+                account_login=account_login,
+                account_id=account_id
+            )
+
+            # Persist repositories
+            repositories = payload.get("repositories", [])
+            for repo in repositories:
+                await crud.get_or_create_repository(
+                    db,
+                    repo_id=repo.get("id"),
+                    installation_id=installation_id,
+                    full_name=repo.get("full_name")
+                )
+
+            logger.info(f"New installation from {account_login} with {len(repositories)} repos")
         case "deleted":
-            logger.info(f"Installation removed by {account}")
+            # We could mark as inactive instead of hard deleting
+            logger.info(f"Installation removed by {account_login}")
         case _:
             logger.debug(f"Installation action: {action}")
 
     return {"status": "ok", "action": action}
 
 
-async def handle_push(payload: dict) -> dict[str, str]:
+async def handle_push(payload: dict, db: AsyncSession) -> dict[str, str]:
     """Handle push events - optionally trigger scans."""
     repo = payload.get("repository", {})
     repo_name = repo.get("full_name")

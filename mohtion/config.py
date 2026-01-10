@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     # Redis (for ARQ job queue)
     redis_url: str = "redis://localhost:6379"
 
+    # Database
+    database_url: str = "postgresql+asyncpg://mohtion:password@localhost:5432/mohtion"
+
     # App settings
     debug: bool = False
     log_level: str = "INFO"

@@ -148,3 +148,9 @@ REDIS_URL=               # Redis connection string
 
 - **TODO.md** - Check this at the start of each session for current tasks and priorities
 - **LOGBOOK.md** - Update at the end of each session with a brief, descriptive summary of what was accomplished
+
+## Workflow Rules
+
+- **Branching:** ALWAYS create a new branch for every feature or fix (e.g., `feat/feature-name`, `fix/bug-name`).
+- **Main Protection:** NEVER merge into `main` directly. All changes must be reviewed via Pull Request.
+- **Rollback:** If accidental commits are made to `main`, immediate rollback is required.

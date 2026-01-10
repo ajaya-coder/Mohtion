@@ -1,0 +1,63 @@
+feat: Implement PostgreSQL Persistence Layer with SQLAlchemy & Alembic #4
+
+Problem
+Currently, the Mohtion agent is stateless. This leads to critical issues in a production environment:
+
+Amnesia: The agent has no memory of previous scans or actions.
+Duplicate PRs: It may identify the same technical debt and open a new PR for it, even if a previous PR is open or was closed by the user.
+No Rate Limiting: We cannot track when a repository was last scanned to enforce the "once per 24h" rule.
+Lost Context: We cannot track the status of generated "bounties" (Pending, Merged, Rejected).
+Proposed Solution
+Implement a relational database using PostgreSQL to serve as the agent's long-term memory. Use SQLAlchemy for ORM and Alembic for schema migrations.
+
+Key Deliverables
+Infrastructure
+
+Spin up a PostgreSQL container in docker-compose.yml.
+
+Configure alembic for migration management.
+
+Create a database/ module for connection handling (sessionmaker).
+Data Models (Schema)
+Implement the following SQLAlchemy models:
+Installation: Tracks the GitHub App installation.
+
+id (Primary Key, GitHub Installation ID)
+account_login (User/Org name)
+installed_at (Timestamp)
+Repository: Tracks enabled repositories.
+
+id (Primary Key, GitHub Repo ID)
+installation_id (ForeignKey)
+full_name (e.g., "user/repo")
+is_active (Boolean)
+config_overrides (JSON - stores settings like enabled analyzers)
+Bounty: Tracks specific units of work/refactoring.
+
+id (UUID)
+repository_id (ForeignKey)
+target_file (String)
+target_function (String)
+issue_type (Enum: COMPLEXITY, TYPE_HINT, etc.)
+status (Enum: PENDING, OPEN, MERGED, CLOSED_BY_USER)
+pr_number (Integer, Nullable)
+created_at (Timestamp)
+ScanHistory: Audit log for rate limiting.
+
+id (UUID)
+repository_id (ForeignKey)
+scanned_at (Timestamp)
+targets_found (Integer)
+Integration
+
+Update the Orchestrator to query the Bounty table before processing a target.
+Logic: IF exists(Bounty where target=X AND status != MERGED) THEN SKIP
+Acceptance Criteria
+
+Database spins up with Docker Compose.
+
+Alembic can auto-generate and run migrations.
+
+Agent successfully creates a Bounty record when it opens a PR.
+
+Agent skips a target if a Bounty already exists for it.

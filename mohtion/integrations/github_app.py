@@ -86,6 +86,21 @@ class GitHubApp:
         ).hexdigest()
         return hmac.compare_digest(f"sha256={expected}", signature)
 
+    async def get_installation(self, installation_id: int) -> dict:
+        """Get details about a specific installation."""
+        jwt_token = self._generate_jwt()
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{self.API_BASE}/app/installations/{installation_id}",
+                headers={
+                    "Authorization": f"Bearer {jwt_token}",
+                    "Accept": "application/vnd.github+json",
+                    "X-GitHub-Api-Version": "2022-11-28",
+                },
+            )
+            response.raise_for_status()
+            return response.json()
+
     async def get_installations(self) -> list[dict]:
         """Get all installations of this GitHub App."""
         jwt_token = self._generate_jwt()
